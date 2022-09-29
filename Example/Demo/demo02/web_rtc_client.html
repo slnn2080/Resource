@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC - 这个真的不想对应</title>
+  <script src="./js/jquery.js"></script>
+</head>
+<body>
+  <div id="buttons">
+    <input type="text" id="zero-roomId" placeholder="请输入房间ID" maxlength="40"> 
+    <button id="join" type="button">加入</button>
+    <button id="leave" type="button">离开</button>
+  </div>
+  <div id="videos">
+    <video src="local_video" autoplay muted playsinline>本地窗口</video>
+    <video src="remote_video" autoplay playsinline>远端窗口</video>
+  </div>
+
+</body>
+</html>

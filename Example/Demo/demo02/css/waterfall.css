@@ -1,0 +1,18 @@
+.wrapper {
+  /* 我们要设置每个图片盒子的top left 所以子绝父相 */
+  position: relative;
+  width: 1200px;
+  margin: 0 auto;
+  /* columns: 5;
+  column-gap: 10px; */
+}
+
+.wf-item {
+  position: absolute;
+}
+
+/* 让图片继承父级100% */
+.wf-item .wf-img {
+  width: 100%;
+  height: 100%;
+}
