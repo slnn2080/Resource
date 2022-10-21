@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./src/assets/css/swiper-bundle.min.css">
+  <style>
+    .swiper {
+      width: 600px;
+      height: 300px;
+    }  
+    img {
+      width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  
+  <input type="text">
+  <script>
+    let inp = document.querySelector("input")
+
+    let reg = /[^0-9.]*/g
+    inp.addEventListener("input", function() {
+      this.value = this.value.replace(reg, "")
+    })
+
+    inp.addEventListener("change", function() {
+      this.value = Number(this.value).toLocaleString()
+    })
+
+
+    // inp.addEventListener("change", function() {
+    //   this.value = Number(this.value).toLocaleString() == 0
+    //     ? ""
+    //     : Number(this.value).toLocaleString()
+    // })
+
+    // let num = 1223233.45
+    // https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+    // console.log(num.toLocaleString("zh-Hans-CN"))
+    // let val = this.value.replace(reg, "")
+    // this.value = Number(val).toLocaleString()
+
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+
+    .container {
+      width: 500px;
+      margin: 0 auto;
+      background: #eee;
+    }
+
+    .link-wrap {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .link-wrap:nth-child(2n) {
+      margin-top: 10px;
+    }
+
+    .link-item a {
+      display: block;
+      height: 300px;
+    }
+
+    .link-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      vertical-align: bottom;
+    }
+
+    .link-mark {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: palevioletred;
+      opacity: 0;
+      transition: all 0.5s;
+      z-index: -1;
+    }
+
+    .link-mark span {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .link-mark.active {
+      z-index: 1;
+      opacity: 1;
+    }
+    
+
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+    <div class="link-wrap" data-target="warp">
+      <div class="link-item">
+        <a href="https://www.baidu.com">
+          <img src="../src/assets/images/new1.jpg" alt="">
+        </a>
+      </div>
+    </div>
+
+    <div class="link-wrap" data-target="warp">
+      <div class="link-item">
+        <a href="https://www.baidu.com">
+          <img src="../src/assets/images/new2.jpg" alt="">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    
+    let data = [
+      {
+        text: "That must be a face of a doll"
+      },
+      {
+        text: "The smile must be that of an angel"
+      },
+    ]
+
+
+    window.addEventListener("load", () => {
+      new Mark({
+        data,
+        target: "[data-target]"
+      })
+    })
+
+
+    // 封装
+    class Mark {
+
+      constructor(options = {}) {
+        let {data, target} = options
+        this.init(data, target)
+      }
+
+      init(data, target) {
+        let targets = document.querySelectorAll(target)
+
+        ;[...targets].forEach((el, index) => {
+          let a = el.querySelector("a")
+          let url = a.href
+          let mark = document.createElement("div")
+          mark.classList.add("link-mark")
+          mark.innerHTML = `<span>${data[index].text}</span>`
+
+          el.appendChild(mark)
+
+          a.addEventListener("click", e => {
+            e.preventDefault();
+            mark.classList.add("active")
+
+            // 延时跳转
+            /*
+              setTimeout(() => {
+                location.href = url
+                el.removeChild(mark)
+              }, 500)
+            */
+            
+            // 过渡结束后跳转 
+            mark.addEventListener("transitionend", (e) => {
+              location.href = url
+              el.removeChild(mark)
+            })
+          })
+        })
+
+      }
+    }
+
+
+    
+  </script>
+</body>
+</html>

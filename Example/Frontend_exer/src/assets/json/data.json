@@ -1,0 +1,6 @@
+{
+  "name": "sam",
+  "age": 18,
+  "address": "日本",
+  "jobs": ["vue", "react", "servlet"] 
+}

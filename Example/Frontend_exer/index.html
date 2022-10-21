@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.27.2/axios.min.js"></script>
+  <style>
+.box {
+  position:absolute;
+  left: 445px;
+  transform: translateX(-50%);
+  top: 0;
+  /* transform: translate(-50%, -50%); */
+  width: 200px;
+  height: 200px;
+  border: 1px solid #212121;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  height: 20px;
+  background-color: #212121;
+  padding: 10px 30px;
+  text-align: center;
+  color:#fff;
+}
+.header + div {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+  </style>
+</head>
+<body>
+
+  <div v-move class="box">
+    <div class="header">
+      标题
+    </div>
+    <div>内容</div>
+  </div>
+
+<script>
+
+let box = document.querySelector(".box")
+let header = document.querySelector(".header")
+console.log(document.body.clientWidth)
+const mouseDown = (e) => { 
+    // 拿到第一次按下时候的位置
+    let x = e.clientX - box.offsetLeft
+    let y = e.clientY - box.offsetTop
+
+    console.log("e.clientX", e.clientX)
+    console.log("el.offsetLeft", box.offsetLeft)
+    
+    // 绑定移动事件
+    const move = (e) => {
+
+      // 将鼠标的鼠标 设置给 box元素
+      box.style.left = e.clientX - x + "px"
+      box.style.top = e.clientY - y + "px"
+    }
+    document.addEventListener("mousemove", move)
+
+    // 绑定鼠标抬起事件 清除 move 函数
+    document.addEventListener("mouseup", () => {
+      document.removeEventListener("mousemove", move)
+    })
+  }
+  header.addEventListener("mousedown", mouseDown)
+</script>
+</body>
+</html>
