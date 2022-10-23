@@ -20,6 +20,8 @@ let queue = []
 // let cbs = []
 let temp = null
 
+let pending = false
+
 
 btn.addEventListener("click", async function() {
 
@@ -68,104 +70,154 @@ btn.addEventListener("click", async function() {
     queue.push({part: partNum++, flag: false, fn: fn(formdata)})
     console.log("队列中的元素有: \t", queue)
 
+    // 获取 mediaRecorder 的状态
+    const mediaRecorderState = mediaRecorder.state; 
+    // console.log("mediaRecorderState: -------- : ", mediaRecorderState)  // recording & inactive
 
-    // 循环上传队列
-    do {
-
-      try {
-
-        // 在 temp: null 的时候先从队列中取出一个 part
-        if(!temp) {
-          temp = queue.shift()
-          console.log("进入到 if 逻辑: \t", temp)
-
-          let res = await temp.fn()
-           // 一旦出错后 下面的逻辑都不会执行 而是到 catch中
-          console.log("上传成功后的res: \t", res)
-
-          temp.flag = true
-          console.log("上传成功后的temp:", temp)
-          console.log("")
-          temp = null
-          break
-        } else if(temp && !temp?.flag){
-          console.log("")
-          console.log("进入到 else if 逻辑")
-          console.log("失败后的temp: \t", temp)
-
-          let res = await temp.fn()
-          console.log("再次上传的res: \t", res)
-          console.log("")
-          temp.flag = true
-          temp = null
-          break
-        }
-        
-        
-
-
-      } catch(err) {
-
-        if(err.message == "Network Error") {
-          await sleep(1000)
-          continue
-        }
-
-      }
-
-    } while(true)
-
-    // do {
-
-    //   /*
-    //     队列的思考:
-    //       现在我要将 上传的request 封装到一个队列中去
-    //       1. 执行队列 会封装一个方法
-    //       2. push队列也是一个方法 在这个方法里面 调用执行队列的方法
-    //   */
-    //   try {
-
-    //     let {data: res} = await request({
-    //       method: "post",
-    //       data: formdata
-    //     })
-    //     console.log(`上传后的时间是: ${seconds}, 上传的结果为: ${res.msg} - ${res.partNumber}`)
-    //     console.log("")
-
-    //     break
-        
-    //   } catch(err) {
-
-    //     // console.log("error: ", err.message) // "Network Error"
-    //     if(err.message == "Network Error") {
-          
-    //       // 如果是 Network Error 的情况下 让它 continue 如果直接continue会刷屏上传 所以让它睡一秒
-    //       await sleep(1000)
-    //       continue
-    //     }
-    //   }
-
-    // } while(true)
+    // 把上传的逻辑移动到 notify 中
+    notify(mediaRecorderState)
+    
   })
 
   mediaRecorder.addEventListener("stop", function() {
-
     clearInterval(timer)
-
-    // let blob = new Blob(chunks, {
-    //   type
-    // })
-
-    // let url = URL.createObjectURL(blob)
-    // let video = document.querySelector(".video")
-    // video.src = url
   })
   
 
-  mediaRecorder.start(5000)
+  mediaRecorder.start(3000)
 })
 
+
 /*
+  验证1: 
+    dataavailable 确实是指定 毫秒后 触发一次
+
+  验证2: 
+    看看 dataavailable 和 notify 中输出是否一致
+      -- 一致
+
+  验证3:
+    dataavailable的事件回调 和 setTimeout 是否在一个队列中排队
+      -- 不是 是每次触发dataavailable后 都会向 宏任务中丢一个setTimeout 
+         类似在队列中只排了 setTimeout 而它的执行跟秒数有关系 会出现下面的情况
+         相当于 dataavailable 只管推, setTimeout的执行在另一条路上 时间到了我就插到主干道执行
+
+         dataavailable ----- : dataavailable  // 2秒一次
+         dataavailable ----- : dataavailable  // 2秒一次
+
+            notify ----- : setTimeout // 3秒一次
+
+        dataavailable ----- : dataavailable  // 2秒一次
+            notify ----- : setTimeout // 3秒一次
+
+  验证4: 3000
+    尝试 await 看看验证3中的结果是否有变化
+      添加 await 和 async 的逻辑后 真的会依次等待
+
+      dataavailable事件在第 4 秒的时候触发了 1 次
+      第一次的await str输出放在了 第二个dataavailable事件触发中
+
+      dataavailable事件在第 7 秒的时候触发了 2 次
+      在 第 7 秒 的时候输出 await --- : 第 1 的3000的setTimout
+
+      dataavailable事件在第 10 秒的时候触发了 3 次
+      在 第 10 秒 的时候输出 await --- : 第 2 的3000的setTimout
+
+      dataavailable事件在第 12 秒的时候触发了 4 次
+      在 第 13 秒 的时候输出 await --- : 第 3 的3000的setTimout
+
+      dataavailable事件在第 15 秒的时候触发了 5 次
+      在 第 15 秒 的时候输出 await --- : 第 4 的3000的setTimout
+
+      dataavailable事件在第 17 秒的时候触发了 6 次
+      在 第 18 秒 的时候输出 await --- : 第 5 的3000的setTimout
+
+      dataavailable事件在第 20 秒的时候触发了 7 次
+      在 第 20 秒 的时候输出 await --- : 第 6 的3000的setTimout
+
+      dataavailable事件在第 22 秒的时候触发了 8 次
+      在 第 23 秒 的时候输出 await --- : 第 7 的3000的setTimout
+
+      dataavailable事件在第 24 秒的时候触发了 9 次
+      在 第 25 秒 的时候输出 await --- : 第 8 的3000的setTimout
+
+      dataavailable事件在第 26 秒的时候触发了 10 次
+      在 第 27 秒 的时候输出 await --- : 第 9 的3000的setTimout
+
+      dataavailable事件在第 29 秒的时候触发了 11 次
+      在 第 29 秒 的时候输出 await --- : 第 10 的3000的setTimout
+
+      dataavailable事件在第 31 秒的时候触发了 12 次
+      在 第 32 秒 的时候输出 await --- : 第 11 的3000的setTimout
+
+      dataavailable事件在第 33 秒的时候触发了 13 次
+      在 第 33 秒 的时候输出 await --- : 第 12 的3000的setTimout
+
+      在 第 33 秒 的时候输出 await --- : 第 13 的3000的setTimout
+
+------
+
+    如果 await 的时间比 dataavailable 要长 它会等到 执行次数dataavailable的事件触发的时候再执行
+      dataavailable事件在第 4 秒的时候触发了 1 次
+      dataavailable事件在第 6 秒的时候触发了 2 次
+
+      dataavailable事件在第 9 秒的时候触发了 3 次
+      在 第 9 秒 的时候输出 await --- : 第 1 的5000的setTimout
+
+      dataavailable事件在第 11 秒的时候触发了 4 次
+      在 第 11 秒 的时候输出 await --- : 第 2 的5000的setTimout
+
+      dataavailable事件在第 13 秒的时候触发了 5 次
+      在 第 14 秒 的时候输出 await --- : 第 3 的5000的setTimout
+
+      dataavailable事件在第 16 秒的时候触发了 6 次
+      在 第 16 秒 的时候输出 await --- : 第 4 的5000的setTimout
+
+      dataavailable事件在第 18 秒的时候触发了 7 次
+      在 第 18 秒 的时候输出 await --- : 第 5 的5000的setTimout
+
+      dataavailable事件在第 20 秒的时候触发了 8 次
+      在 第 21 秒 的时候输出 await --- : 第 6 的5000的setTimout
+
+      dataavailable事件在第 21 秒的时候触发了 9 次
+      在 第 21 秒 的时候输出 await --- : 第 7 的5000的setTimout
+
+    当事件结束的时候 剩下的 await 输出会补回执行
+      在 第 21 秒 的时候输出 await --- : 第 8 的5000的setTimout
+
+      在 第 21 秒 的时候输出 await --- : 第 9 的5000的setTimout
+
+  
+  验证5: 
+    添加上传逻辑 看看是否能够正常的上传 
+
+    mediaRecorder.addEventListener("dataavailable", async function(e) {
+
+      chunks.push(e.data)
+      type = chunks[0].type
+      let webm = new Blob(chunks, {type})
+      chunks = []
+
+      let formdata = new FormData()
+      formdata.append("filename", partNumber++)
+      formdata.append("filetype", type)
+      formdata.append("file", webm)
+
+      try {
+        let {data: res} = await axios({
+          url: "http://127.0.0.1:3000/upload",
+          method: "post",
+          data: formdata
+        })
+
+        console.log("res -----: ", res)
+
+      } catch(err) {
+        console.log("error: ", err)
+      }
+      
+    })
+
   验证6: 
     循环上传中 如果没有对发生错误的时候的 part 做处理 那么它们会被忽略上传
     1-4, 9-14
@@ -311,3 +363,98 @@ function request(config) {
   return instance(config)
 }
 
+function notify(mediaRecorderState) {
+  
+  // // 防抖处理
+  // if(!pending) {
+  //   setTimeout(flushQueue, 0)
+  //   pending = true
+  // }
+
+  /*
+    到这里可以不可以 先做上传 触发一次
+  */
+  flushQueue()
+  if(mediaRecorderState == "inactive") flushQueue()
+}
+
+
+async function flushQueue() {
+
+  for(let i = 0; i < queue.length; i++) {
+
+    do {
+
+      try {
+  
+        // 在 temp: null 的时候先从队列中取出一个 part
+        if(!temp) {
+          temp = queue.shift()
+          console.log("进入到 if 逻辑: \t", temp)
+  
+          let res = await temp.fn()
+           // 一旦出错后 下面的逻辑都不会执行 而是到 catch中
+          console.log("上传成功后的res: \t", res)
+  
+          temp.flag = true
+          console.log("上传成功后的temp:", temp)
+          console.log("")
+          temp = null
+          break
+
+        } else if(temp && !temp?.flag){
+          console.log("")
+          console.log("进入到 else if 逻辑")
+          console.log("失败后的temp: \t", temp)
+  
+          let res = await temp.fn()
+          console.log("再次上传的res: \t", res)
+          console.log("")
+          temp.flag = true
+          temp = null
+          break
+        }
+        
+      } catch(err) {
+  
+        if(err.message == "Network Error") {
+          await sleep(1000)
+          continue
+        }
+  
+      }
+  
+    } while(true)
+  }
+  
+}
+
+
+// 测试 单文件上传逻辑
+/*
+let oInp = document.querySelector("#file")
+
+oInp.addEventListener("change", async function() {
+  let file = this.files[0]
+  if(!file) return alert("没有上传文件")
+
+  let formdata = new FormData()
+
+  // console.log(file.name)  // movie.mp4
+  // console.log(file.size / 1024 / 1024)  // 3.456502914428711
+  // console.log(file.type)  // video/mp4
+
+  formdata.append("file", file)
+  formdata.append("filename", file.name)
+  formdata.append("filetype", file.type)
+
+  let {data: res} = await axios({
+    method: "post",
+    url: "http://localhost:3333/upload",
+    data: formdata
+  })
+
+  console.log("后台返回的数据: ", res)
+
+})
+*/

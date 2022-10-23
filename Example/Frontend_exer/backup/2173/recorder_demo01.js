@@ -1,18 +1,5 @@
 const axios = require("axios")
-// console.log(axios)
-
-
 let baseURL = "http://127.0.0.1:3000"
-// let num = 0;
-// (async () => {
-//   console.log("------")
-//   let {data: res} = await axios({url: baseURL + "/test"})
-//   console.log(res)
-//   console.log("++++++")
-// })()
-
-
-
 
 
 // 获取按钮
@@ -49,7 +36,6 @@ btn.addEventListener("click", async function() {
 
   // 如果 start 中指定了 timeslice 则每5秒触发这个事件一次 e.data 就是指定部分的内容
   mediaRecorder.addEventListener("dataavailable", async function(e) {
-    debugger
     console.log(" --------------------- ")
     /*
       console.log("mediaRecorder: ----- ", mediaRecorder)

@@ -1,14 +1,13 @@
+
 /*
-  fileName: 2173_part5
+  fileName: 2173_part4
 
   desc:
-    做队列上传逻辑
-
-  队列上传逻辑
+    demo阶段 验证下面的代码 配合 后台代码 完成上传文件的逻辑
 */
 
 let axios = require("axios")
-let {$, sleep} = require("./src/assets/js/utils")
+let {$} = require("./src/assets/js/utils")
 
 let btn = $(".record-btn")
 
@@ -25,13 +24,6 @@ let type = "video/webm;codecs=vp9"
 let mime = MediaRecorder.isTypeSupported("video/webm; codecs=vp9")
     ? "video/webm; codecs=vp9"
     : "video/webm"
-
-
-// 
-
-
-
-
 
 // 点击录制按钮所触发的回调
 btn.addEventListener("click", async function() {
@@ -97,29 +89,3 @@ btn.addEventListener("click", async function() {
   // 指定开始录制 并每2000后触发一次dataavailable
   mediaRecorder.start(3000)
 })
-
-
-
-// 工具函数
-function fn(formdata) {
-  return function() {
-    return new Promise(resolve => {
-      axios({
-        url: "http://127.0.0.1:3333/upload",
-        method: "post",
-        data: formdata
-      }).then(res => {
-        resolve(res.data)
-      })
-    })
-  }
-}
-
-function request(config) {
-  const instance = axios.create({
-    baseURL: 'http://127.0.0.1:3333/upload',
-    timeout: 5000
-  })
-
-  return instance(config)
-}
