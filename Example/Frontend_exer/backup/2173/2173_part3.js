@@ -1,127 +1,13 @@
-let axios = require("axios")
-let {$} = require("./src/assets/js/utils")
-
-let btn = $(".record-btn")
-
-let chunks = []
-// let count = 1
-// let setTimeoutCount = 1
-
-let partNumber = 1
-
-let type = "video/webm;codecs=vp9"
-
-
-btn.addEventListener("click", async function() {
-
-  // let seconds = 0
-  // let timer = setInterval(() => {
-  //   seconds++
-  // }, 1000)
-
-  let stream = await navigator.mediaDevices.getDisplayMedia({
-    video: true
-  })
-
-  let mime = MediaRecorder.isTypeSupported("video/webm; codecs=vp9")
-    ? "video/webm; codecs=vp9"
-    : "video/webm"
-
-  let mediaRecorder = new MediaRecorder(stream, {
-    mimeType: mime
-  })
-
-  
-
-  mediaRecorder.addEventListener("dataavailable", async function(e) {
-
-
-    // chunks.push(e.data)
-    // console.log(`dataavailable事件在第 ${seconds} 秒的时候触发了 ${count++} 次`)
-
-    // let str = await notify()
-    // console.log(`在 第 ${seconds} 秒 的时候输出 await --- : ${str}`)
-    // console.log("")
-
-    // 每次触发 dataavailable 事件后 将这一个部分的 data 上传到服务器
-    chunks.push(e.data)
-    type = chunks[0].type
-    let webm = new Blob(chunks, {type})
-    chunks = []
-
-    let formdata = new FormData()
-    formdata.append("filename", partNumber++)
-    formdata.append("filetype", type)
-    formdata.append("file", webm)
-
-    try {
-      let {data: res} = await axios({
-        url: "http://127.0.0.1:3000/upload",
-        method: "post",
-        data: formdata
-      })
-
-      console.log("res -----: ", res)
-
-    } catch(err) {
-      console.log("error: ", err)
-    }
-    
-  })
-
-  mediaRecorder.addEventListener("stop", function() {
-
-    // clearInterval(timer)
-
-    let blob = new Blob(chunks, {
-      type: chunks[0].type
-    })
-
-    let url = URL.createObjectURL(blob)
-    let video = document.querySelector(".video")
-    video.src = url
-  })
-  
-
-  mediaRecorder.start(2000)
-})
-
-
-// async function notify() {
-  
-//   return new Promise(resolve => {
-//     setTimeout(() => {
-//       resolve(`第 ${setTimeoutCount++} 的5000的setTimout`)
-//     }, 5000)
-//   })
-  
-// }
-
 /*
-  验证1: 
-    dataavailable 确实是指定 毫秒后 触发一次
+  fileName: 2173_part3
 
-  验证2: 
-    看看 dataavailable 和 notify 中输出是否一致
-      -- 一致
+  验证:
+    在 part2 的基础上 在 dataavailable 事件 和 notify 之间使用 async await 查看结果是否有变化
 
-  验证3:
-    dataavailable的事件回调 和 setTimeout 是否在一个队列中排队
-      -- 不是 是每次触发dataavailable后 都会向 宏任务中丢一个setTimeout 
-         类似在队列中只排了 setTimeout 而它的执行跟秒数有关系 会出现下面的情况
-         相当于 dataavailable 只管推, setTimeout的执行在另一条路上 时间到了我就插到主干道执行
+  结论:
+    添加 await 后 确实 dataavailable 和 notify 之间会排队等待
 
-         dataavailable ----- : dataavailable  // 2秒一次
-         dataavailable ----- : dataavailable  // 2秒一次
-
-            notify ----- : setTimeout // 3秒一次
-
-        dataavailable ----- : dataavailable  // 2秒一次
-            notify ----- : setTimeout // 3秒一次
-
-  验证4: 3000
-    尝试 await 看看验证3中的结果是否有变化
-      添加 await 和 async 的逻辑后 真的会依次等待
+    输出顺序规整很多了  其实感觉和不加await的规律差不多
 
       dataavailable事件在第 4 秒的时候触发了 1 次
       第一次的await str输出放在了 第二个dataavailable事件触发中
@@ -195,8 +81,93 @@ btn.addEventListener("click", async function() {
       在 第 21 秒 的时候输出 await --- : 第 8 的5000的setTimout
 
       在 第 21 秒 的时候输出 await --- : 第 9 的5000的setTimout
-
-  
-  验证5: 
-    添加上传逻辑 看看是否能够正常的上传
 */
+
+let axios = require("axios")
+let {$} = require("./src/assets/js/utils")
+
+let btn = $(".record-btn")
+
+// 创建 chunks 数组 用来存放 录制视频的数据 
+let chunks = []
+
+// 用于测试 dataavailable 方法调用的次数
+let count = 1
+
+// 用于测试 notify 相关
+let setTimeoutCount = 1
+
+
+// 视频的标识 这里做为了文件名
+let partNumber = 1
+
+// 视频的类型
+let type = "video/webm;codecs=vp9"
+
+// 视频的类型 拿到全局是为了让 stop 中也能用到
+let mime = MediaRecorder.isTypeSupported("video/webm; codecs=vp9")
+    ? "video/webm; codecs=vp9"
+    : "video/webm"
+
+// 点击录制按钮所触发的回调
+btn.addEventListener("click", async function() {
+
+  // 选择录制区域 补货该区域的视频流 只要视频轨道
+  let stream = await navigator.mediaDevices.getDisplayMedia({
+    video: true
+  })
+
+  // 尝试1用: 当点击 录制按钮的时候启动计时器  seconds 就是秒数 用于验证 dataavailable 是不是每指定秒数后触发一次
+  let seconds = 0
+  let timer = setInterval(() => {
+    console.log("测试用定时器第" + seconds + " 秒")
+    seconds++
+  }, 1000)
+
+  // 判断浏览器是否支持该类型 做判断处理
+  let mime = MediaRecorder.isTypeSupported("video/webm; codecs=vp9")
+    ? "video/webm; codecs=vp9"
+    : "video/webm"
+
+  // 拿到record的实例对象 用于获取录制数据 传入录制数据的类型
+  let mediaRecorder = new MediaRecorder(stream, {
+    mimeType: mime
+  })
+
+  // dataavailable start(2000)该方法中指定了多少秒后 调用一次dataavailable方法
+  mediaRecorder.addEventListener("dataavailable", async function(e) {
+
+    console.log(`dataavailable事件在第 ${seconds} 秒的时候触发了 ${count++} 次`)
+
+    let str = await notify()
+    console.log(`在 第 ${seconds} 秒 的时候输出 await --- : ${str}`)
+    console.log("")
+
+  })
+
+
+
+
+  // 2173 task 中我们并不关心 结束录制之后的路径
+  mediaRecorder.addEventListener("stop", function() {
+
+    // 清除用于验证时 开启的定时器
+    clearInterval(timer)
+    console.log("视频录制结束")
+  })
+  
+
+  // 指定开始录制 并每2000后触发一次dataavailable
+  mediaRecorder.start(2000)
+})
+
+
+function notify() {
+  
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(`第 ${setTimeoutCount++} 的3000的setTimout`)
+    }, 3000)
+  })
+  
+}
