@@ -1,0 +1,132 @@
+@media (min-width: 1200px){
+  #PRE00002 .container{
+    max-width: 960px;
+  }
+  }
+  .setting-check{
+    margin-bottom: 30px;
+  }
+  .setting-check .list-group-item{
+    position: relative;
+    font-size: 1.125rem;
+    color: #888;
+    background-color: #fbfbfb;
+  }
+  .setting-check .list-group-item .fa{
+    color: #ccc;
+  }
+  .setting-check .check-type-icon {
+    display: inline-block;
+    min-width: 50px;
+    text-align: center;
+    margin-right: 10px;
+  }
+  .setting-check .check-type-icon .fa{
+    font-size: 50px;
+  }
+  .setting-check .check-status{
+    position: absolute;
+    top: 17px;
+    right: 30px;
+  }
+  .setting-check .check-status .fa{
+    font-size: 40px;
+  }
+  .setting-check .check-on{
+    background-color: #e7fdd0;
+  }
+  .setting-check .check-on .fa{
+    color: #74c23a;
+  }
+  .setting-check .list-group-item.check-error {
+    background-color: #ffeae1;
+    color: #d93600;
+  }
+  .check-error .check-type-icon .fa {
+    color: #d93600;
+  }
+  .check-error .check-status .fa{
+    color: #d93600;
+  }
+  .check-error .btn {
+    position: absolute;
+    top:18px;
+    right: 80px;
+  }
+  @media screen and (max-width: 767px){ 
+  .setting-check .list-group-item.check-error {
+    font-size: 1rem;
+  }
+  .check-error .check-type-icon {
+    vertical-align: top;
+  }
+  .check-error .btn {
+    position: absolute;
+    top: 35px;
+    right: auto;
+    left: 85px;
+    font-size: .75rem;
+  }
+  }
+  @media screen and (max-width: 480px){ 
+  .setting-check .list-group-item.check-error{
+    font-size: .75rem;
+  }
+  .check-error .btn {
+    top: 30px;
+    left: 62px;
+    padding: .3rem .6rem;
+  }
+  }
+  .terms-text{
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .terms-check{
+    font-size: 1rem;
+    padding-left: 2rem;
+  }
+  @media (max-width: 480px){
+  .terms-text{
+    max-height: 200px;
+  }
+  .terms-check{
+    margin-bottom: 0 !important;
+  }
+  }
+  .btn:disabled,
+  .custom-control-input[disabled] ~ .custom-control-label {
+    cursor: not-allowed;
+  }
+  .terms-check .custom-control-label {
+    cursor: pointer;
+  }
+  .terms-check .custom-control-label::before,
+  .terms-check .custom-control-label::after {
+    width: 1.5rem;
+    height: 1.5rem;
+    top: 0;
+    left: -2rem;
+  }
+  @media screen and (max-width: 480px){
+  .setting-check {
+    margin-bottom: 20px;
+  }
+  .setting-check .check-type-icon {
+    min-width: 40px;
+    margin-right: 5px;
+  }
+  .setting-check .check-type-icon .fa {
+    font-size: 40px;
+  }
+  .setting-check .check-status {
+    right: 10px;
+  }
+  .setting-check .check-status .fa {
+    font-size: 30px;
+  }
+  .setting-check .list-group-item {
+    font-size: .875rem;
+    padding: .75rem;
+  }
+}
