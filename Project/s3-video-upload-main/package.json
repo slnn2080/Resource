@@ -1,0 +1,27 @@
+{
+  "name": "s3-video-upload",
+  "description": "aws s3 upload demo",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node ./scripts/copy-env.ts && parcel ./src/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.881.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "@types/web": "0.0.79",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
+    "eslint": "^8.27.0",
+    "events": "^3.3.0",
+    "parcel": "^2.8.0",
+    "process": "^0.11.10",
+    "punycode": "^1.4.1",
+    "querystring-es3": "^0.2.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^3.8.3",
+    "util": "^0.12.5"
+  }
+}

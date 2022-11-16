@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- <script src="https://sdk.amazonaws.com/js/aws-sdk-2.881.0.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script> -->
+    <!-- <script src="../env.js"></script> -->
+    <script type="module" src="./index.ts"></script>
+    <style>
+      body {
+        /* width: 100vw; */
+        /* height: 100vh; */
+        /* background-color: #eee; */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .wrap {
+        margin-bottom: 30%;
+      }
+
+      .video-wrap {
+        width: 80%;
+        height: 180px;
+        padding: 30px;
+        /* background-color: #c2185b; */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .video-wrap video {
+        /* width: 100%; */
+        width: 320px;
+        height: 180px;
+        /* height: auto; */
+        object-fit: cover;
+      }
+
+      .btn-wrap {
+        /* width: 80%; */
+        padding: 15px 30px;
+        background-color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .btn-wrap button {
+        background-color: #1892c2;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        outline: none;
+        /* width: 80%; */
+        height: 30px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="video-wrap">
+        <!-- <video class="video" width="600" controls></video> -->
+      </div>
+      <div class="btn-wrap">
+        <button class="record-btn">record</button>
+        <!-- <button class="upload-btn">putObjectVideo</button> -->
+      </div>
+    </div>
+  </body>
+</html>
